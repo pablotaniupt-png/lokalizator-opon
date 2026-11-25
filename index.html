@@ -90,12 +90,14 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px;ma
     <div><h2 style="margin:0 0 4px">Dodaj felgi</h2><div class="label">ID kompletu pozwala oznaczyć felgi należące do jednego zestawu. Każde zapisanie tworzy osobny wpis.</div></div>
     <form id="quickRimForm" style="margin-top:16px">
       <div class="form-grid">
-        <div class="field full">
+         <div class="field full">
           <label>ID Kompletu <span class="label" style="display:inline">(opcjonalnie)</span></label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input id="quickRimCompleteId" placeholder="np. KOMP-202611111946" style="flex:1;min-width:0">
-            <button class="btn" type="button" id="newRimCompleteId">Nowy komplet</button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input id="quickRimCompleteId" placeholder="np. K12 lub PARA5" style="flex:1;min-width:160px">
+            <button class="btn" type="button" id="newRimCompleteId" title="Wstaw następny wolny numer kompletu">+ Komplet (K1)</button>
+            <button class="btn" type="button" id="newRimParaId" title="Wstaw następny wolny numer pary">+ Para (PARA1)</button>
           </div>
+          <div id="rimNextIdInfo" class="label" style="margin-top:4px;font-size:12px">Ostatnie w bazie: brak</div>
         </div>
         <div class="field"><label>Styling</label><input id="quickRimStyling" placeholder="Uzupełni się z katalogu lub wpisz ręcznie"></div>
         <div class="field"><label>Rozmiar</label><input id="quickRimSize" placeholder="np. 8,5JX19 ET:46"></div>
@@ -426,8 +428,9 @@ function renderRims(){
     return (!q||hay.includes(q))&&(!loc||r.location===loc);
   });
   rowsEl.innerHTML=filtered.length?filtered.map(r=>`<tr><td>${esc(r.completeId||'—')}</td><td class="serial">${esc(r.styling)}</td><td>${esc(r.size||'—')}</td><td>${esc(r.productNumber||'—')}</td><td><span class="badge">${esc(String(r.quantity))}</span></td><td class="loc">${esc(r.location)}</td><td>${esc(r.notes||'—')}</td><td><div class="row-actions"><button type="button" class="btn primary" data-rim-edit="${esc(r.id)}">Edytuj</button><button type="button" class="btn danger" data-rim-delete="${esc(r.id)}" title="Usuń ten wpis felg">Usuń wpis</button></div></td></tr>`).join(''):'<tr><td colspan="8" class="empty">Brak zapisanych wpisów felg.</td></tr>';
-  const dl=$('#rimLocationSuggestions');
+ const dl=$('#rimLocationSuggestions');
   if(dl)dl.innerHTML=locs.map(l=>`<option value="${esc(l)}"></option>`).join('');
+  updateNextRimIdHints();
 }
 function openRim(id){
   const r=rims.find(x=>x.id===id);if(!r)return;
@@ -445,17 +448,41 @@ function openRim(id){
 function closeRim(){ $('#rimModal').classList.remove('open'); }
 
 
-function createCompleteSetId(){
-  const d=new Date();
-  const pad=n=>String(n).padStart(2,'0');
-  const stamp=d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'-'+pad(d.getHours())+pad(d.getMinutes())+pad(d.getSeconds())+'-'+String(d.getMilliseconds()).padStart(3,'0');
-  return 'KOMP-'+stamp;
+function getNextRimSetIds(){
+  let maxK=0,maxPara=0;
+  (rims||[]).forEach(r=>{
+    const id=String(r.completeId||'').trim().toUpperCase();
+    const mK=id.match(/^K(\d+)$/);
+    if(mK){const n=parseInt(mK[1],10);if(n>maxK)maxK=n;}
+    const mP=id.match(/^PARA[\s\-_]?(\d+)$/);
+    if(mP){const n=parseInt(mP[1],10);if(n>maxPara)maxPara=n;}
+  });
+  return {
+    lastK:maxK?'K'+maxK:'brak',
+    lastPara:maxPara?'PARA'+maxPara:'brak',
+    nextK:'K'+(maxK+1),
+    nextPara:'PARA'+(maxPara+1)
+  };
+}
+function updateNextRimIdHints(){
+  const info=getNextRimSetIds();
+  const btnK=$('#newRimCompleteId');
+  const btnP=$('#newRimParaId');
+  const hint=$('#rimNextIdInfo');
+  if(btnK){btnK.textContent='+ Komplet ('+info.nextK+')';btnK.dataset.next=info.nextK;}
+  if(btnP){btnP.textContent='+ Para ('+info.nextPara+')';btnP.dataset.next=info.nextPara;}
+  if(hint){hint.textContent='Ostatnie w bazie: komplet '+info.lastK+' • para '+info.lastPara;}
 }
 $('#newRimCompleteId').addEventListener('click',()=>{
-  $('#quickRimCompleteId').value=createCompleteSetId();
+  const next=$('#newRimCompleteId').dataset.next||getNextRimSetIds().nextK;
+  $('#quickRimCompleteId').value=next;
   $('#quickRimCompleteId').focus();
 });
-
+$('#newRimParaId').addEventListener('click',()=>{
+  const next=$('#newRimParaId').dataset.next||getNextRimSetIds().nextPara;
+  $('#quickRimCompleteId').value=next;
+  $('#quickRimCompleteId').focus();
+});
 async function lookupRimFields(productNumber, prefix){
   const value=String(productNumber||'').trim();
   if(!value)return;
