@@ -67,12 +67,31 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px;ma
     </div>
     <form id="quickTireForm" style="margin-top:16px">
       <div class="form-grid">
-        <div class="field"><label>Numer seryjny *</label><input id="quickSerial" required placeholder="np. 123456789"></div>
-        <div class="field"><label>Marka</label><input id="quickBrand" placeholder="np. Michelin"></div>
-        <div class="field"><label>Rozmiar</label><input id="quickSize" placeholder="np. 205/55 R16"></div>
+        <div class="field"><label>Numer seryjny *</label><input id="quickSerial" required placeholder="np. WZ1020"></div>
+        <div class="field">
+          <label>Marka (i opcjonalnie model)</label>
+          <input id="quickBrand" placeholder="Kliknij kafelek lub wpisz markę i model">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Michelin">Michelin</button>
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Pirelli">Pirelli</button>
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Continental">Continental</button>
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Bridgestone">Bridgestone</button>
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Goodyear">Goodyear</button>
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Dunlop">Dunlop</button>
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Hankook">Hankook</button>
+            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Nokian">Nokian</button>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Rozmiar + Indeks + Rok DOT + Bieżnik <span class="label" style="display:inline">(np. <b>2753520 102y 20 6,3</b>)</span></label>
+          <input id="quickSize" placeholder="np. 2753520 102y * 20 6,3">
+          <div id="quickTirePreview" class="label" style="margin-top:4px;font-size:12px;color:#176b5b;font-weight:600"></div>
+        </div>
+
         <div class="field"><label>Status</label><select id="quickStatus"><option>Na magazynie</option><option>Wydana</option><option>Zarezerwowana</option><option>Inna</option></select></div>
-        <div class="field full"><label>Lokalizacja *</label><input id="quickLocation" list="locationSuggestions" required placeholder="np. Hala 1 / Regał 04 / Poziom 2"></div>
-        <div class="field full"><label>Uwagi</label><textarea id="quickNotes" rows="2" placeholder="Opcjonalne informacje"></textarea></div>
+        <div class="field"><label>Lokalizacja *</label><input id="quickLocation" list="locationSuggestions" required placeholder="np. K1/1/3"></div>
+        <div class="field full"><label>Dodatkowe uwagi (opcjonalnie)</label><textarea id="quickNotes" rows="2" placeholder="DOT i bieżnik (±0,5 mm) dopiszą się automatycznie"></textarea></div>
       </div>
       <div class="actions"><button class="btn primary save-main" type="submit">+ Zapisz oponę</button></div><div id="saveHint" class="label" style="text-align:right;margin-top:8px">Pola oznaczone * są wymagane.</div>
     </form>
@@ -580,24 +599,83 @@ function openTire(id=''){
 }
 function closeTire(){$('#modal').classList.remove('open');$('#serial').disabled=false;}
 
+function parseQuickTireSpec(raw){
+  let s=String(raw||'').trim();
+  if(!s)return {size:'',autoNote:''};
+
+  // 1. Wyciągnij bieżnik z przecinkiem lub kropką (np. 6,3 lub 6.3)
+  let treadStr='';
+  s=s.replace(/(?:^|\s)(\d{1,2}[,\.]\d)\s*(?:mm)?(?=\s|$)/i, (_,val)=>{
+    const num=parseFloat(val.replace(',','.'));
+    if(!isNaN(num)&&num>0&&num<25){
+      const min=Math.max(0,num-0.5).toFixed(1).replace('.',',');
+      const max=(num+0.5).toFixed(1).replace('.',',');
+      const mid=num.toFixed(1).replace('.',',');
+      treadStr='Bieżnik: '+mid+' mm ('+min+'–'+max+' mm)';
+      return ' ';
+    }
+    return ' '+val+' ';
+  });
+
+  // 2. Sformatuj rozmiar (np. 2753520 -> 275/35 R20)
+  s=s.replace(/^(\d{3})(\d{2})(\d{2})(?=\s|$|[A-Za-z*])/, '$1/$2 R$3');
+  s=s.replace(/^(\d{3})[\/\-](\d{2})[\/\-]?R?(\d{2})/i, '$1/$2 R$3');
+
+  // 3. Wyciągnij 2-cyfrowy lub 4-cyfrowy rok DOT na końcu (np. 20 -> DOT 2020)
+  let dotStr='';
+  s=s.replace(/(?:^|\s)(20\d{2}|\d{2})\s*$/, (_,yr)=>{
+    const fullYear=yr.length===2?'20'+yr:yr;
+    dotStr='DOT '+fullYear;
+    return '';
+  });
+
+  // 4. Powiększ indeks prędkości przy nośności (np. 102y -> 102Y)
+  s=s.replace(/\b(\d{2,3})\s*([hvwyzr]{1,2})\b/gi, (_,n,sp)=>n+sp.toUpperCase());
+  s=s.replace(/\s+/g,' ').trim();
+
+  const autoNote=[dotStr,treadStr].filter(Boolean).join(' • ');
+  return {size:s,autoNote};
+}
+
+document.querySelectorAll('[data-tire-brand]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const inp=$('#quickBrand');
+    if(inp){inp.value=btn.dataset.tireBrand+' ';inp.focus();}
+  });
+});
+
+$('#quickSize')?.addEventListener('input',()=>{
+  const parsed=parseQuickTireSpec($('#quickSize').value);
+  const prev=$('#quickTirePreview');
+  if(!prev)return;
+  if(!parsed.size&&!parsed.autoNote){prev.textContent='';return;}
+  prev.textContent='Podgląd: '+(parsed.size||'—')+(parsed.autoNote?' | '+parsed.autoNote:'');
+});
+
 $('#quickTireForm').addEventListener('submit',async function(e){
   e.preventDefault();
   const serial=$('#quickSerial').value.trim(),location=$('#quickLocation').value.trim();
   if(!serial){showAppToast('Wpisz numer seryjny.','error');return;}if(!location){showAppToast('Wpisz lokalizację.','error');return;}
   if(tires.some(t=>t.serial.toLowerCase()===serial.toLowerCase())){showAppToast('Ten numer seryjny już istnieje.','error');return;}
-  const tire=normalizeTire({id:uid(),serial,brand:$('#quickBrand').value.trim(),size:$('#quickSize').value.trim(),status:$('#quickStatus').value,location,notes:$('#quickNotes').value.trim(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
-  try{setSyncStatus('Zapisywanie opony…');await addRemote(tire);this.reset();await syncFromCloud({allowMigration:false});showAppToast('Zapisano');}
+
+  const parsed=parseQuickTireSpec($('#quickSize').value);
+  const manualNotes=$('#quickNotes').value.trim();
+  const fullNotes=[parsed.autoNote,manualNotes].filter(Boolean).join(' • ');
+
+  const tire=normalizeTire({id:uid(),serial,brand:$('#quickBrand').value.trim(),size:parsed.size,status:$('#quickStatus').value,location,notes:fullNotes,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+  try{
+    setSyncStatus('Zapisywanie opony…');
+    await addRemote(tire);
+    const savedLoc=$('#quickLocation').value;
+    this.reset();
+    $('#quickLocation').value=savedLoc;
+    if($('#quickTirePreview'))$('#quickTirePreview').textContent='';
+    $('#quickSerial').focus();
+    await syncFromCloud({allowMigration:false});
+    showAppToast('Zapisano');
+  }
   catch(e){showAppToast('Nie udało się zapisać opony: '+e.message,'error');setSyncStatus('Nie udało się zapisać zmian.');}
 });
-
-$('#tireForm').addEventListener('submit',async function(e){
-  e.preventDefault();const id=$('#editId').value,t=tires.find(x=>x.id===id),location=$('#location').value.trim();
-  if(!t){showAppToast('Nie znaleziono opony.','error');return;}if(!location){showAppToast('Lokalizacja jest wymagana.','error');return;}
-  const updated={...t,brand:$('#brand').value.trim(),size:$('#size').value.trim(),status:$('#status').value,location,notes:$('#notes').value.trim(),updatedAt:new Date().toISOString()};
-  try{setSyncStatus('Zapisywanie zmian…');await updateRemote(updated);closeTire();await syncFromCloud({allowMigration:false});showAppToast('Zapisano');}
-  catch(e){showAppToast('Nie udało się zapisać zmian: '+e.message,'error');setSyncStatus('Nie udało się zapisać zmian.');}
-});
-
 $('#tireRows').addEventListener('click',async function(e){
   const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');
   if(edit){openTire(edit.dataset.edit);return;}
