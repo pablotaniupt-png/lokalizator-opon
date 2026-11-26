@@ -67,33 +67,44 @@ header{display:flex;justify-content:space-between;align-items:center;gap:16px;ma
     </div>
     <form id="quickTireForm" style="margin-top:16px">
       <div class="form-grid">
-        <div class="field"><label>Numer seryjny *</label><input id="quickSerial" required placeholder="np. WZ1020"></div>
-        <div class="field">
-          <label>Marka (i opcjonalnie model)</label>
-          <input id="quickBrand" placeholder="Kliknij kafelek lub wpisz markę i model">
-          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Michelin">Michelin</button>
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Pirelli">Pirelli</button>
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Continental">Continental</button>
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Bridgestone">Bridgestone</button>
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Goodyear">Goodyear</button>
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Dunlop">Dunlop</button>
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Hankook">Hankook</button>
-            <button type="button" class="btn" style="padding:4px 8px;font-size:12px" data-tire-brand="Nokian">Nokian</button>
+        <div class="field full">
+          <label>1. Marka (i opcjonalnie model)</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <button type="button" class="btn" style="padding:10px 15px;font-size:15px" data-tire-brand="Michelin">Michelin</button>
+            <button type="button" class="btn" style="padding:10px 15px;font-size:15px" data-tire-brand="Pirelli">Pirelli</button>
+            <button type="button" class="btn" style="padding:10px 15px;font-size:15px" data-tire-brand="Continental">Continental</button>
+            <button type="button" class="btn" style="padding:10px 15px;font-size:15px" data-tire-brand="Bridgestone">Bridgestone</button>
+            <button type="button" class="btn" style="padding:10px 15px;font-size:15px" data-tire-brand="Goodyear">Goodyear</button>
+            <button type="button" class="btn" style="padding:10px 15px;font-size:15px" data-tire-brand="Dunlop">Dunlop</button>
+            <button type="button" class="btn" style="padding:10px 15px;font-size:15px" data-tire-brand="Hankook">Hankook</button>
           </div>
+          <input id="quickBrand" placeholder="Wybrana marka (opcjonalnie dopisz model)">
         </div>
 
         <div class="field full">
-          <label>Rozmiar + Indeks + Rok DOT + Bieżnik <span class="label" style="display:inline">(np. <b>2753520 102y 20 6,3</b>)</span></label>
-          <input id="quickSize" placeholder="np. 2753520 102y * 20 6,3">
-          <div id="quickTirePreview" class="label" style="margin-top:4px;font-size:12px;color:#176b5b;font-weight:600"></div>
+          <label>2. Rozmiar + Nośność + Rok DOT + Bieżnik <span class="label" style="display:inline">(same liczby, np. <b>2753520 102 20 6,3</b>)</span></label>
+          <input id="quickSize" inputmode="decimal" placeholder="np. 2753520 102 20 6,3">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
+            <span class="label" style="font-size:12px">Prędkość:</span>
+            <button type="button" class="btn" style="padding:10px 18px;font-size:15px;min-width:54px" data-speed-idx="H">H</button>
+            <button type="button" class="btn" style="padding:10px 18px;font-size:15px;min-width:54px" data-speed-idx="V">V</button>
+            <button type="button" class="btn" style="padding:10px 18px;font-size:15px;min-width:54px" data-speed-idx="W">W</button>
+            <button type="button" class="btn" style="padding:10px 18px;font-size:15px;min-width:54px" data-speed-idx="Y">Y</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
+            <span class="label" style="font-size:12px">Homologacja:</span>
+            <button type="button" class="btn" style="padding:10px 16px;font-size:15px;min-width:54px" data-homologation="*">*</button>
+            <button type="button" class="btn" style="padding:10px 16px;font-size:15px" data-homologation="RSC">RSC</button>
+            <button type="button" class="btn" style="padding:10px 16px;font-size:15px" data-homologation="MO">MO</button>
+            <button type="button" class="btn" style="padding:10px 16px;font-size:15px" data-homologation="MOE">MOE</button>
+            <button type="button" class="btn" style="padding:10px 16px;font-size:15px" data-homologation="MO1">MO1</button>
+          </div>
+          <div id="quickTirePreview" class="label" style="margin-top:8px;font-size:14px;color:#176b5b;font-weight:700"></div>
         </div>
 
-        <div class="field"><label>Status</label><select id="quickStatus"><option>Na magazynie</option><option>Wydana</option><option>Zarezerwowana</option><option>Inna</option></select></div>
-        <div class="field"><label>Lokalizacja *</label><input id="quickLocation" list="locationSuggestions" required placeholder="np. K1/1/3"></div>
         <div class="field full"><label>Dodatkowe uwagi (opcjonalnie)</label><textarea id="quickNotes" rows="2" placeholder="DOT i bieżnik (±0,5 mm) dopiszą się automatycznie"></textarea></div>
       </div>
-      <div class="actions"><button class="btn primary save-main" type="submit">+ Zapisz oponę</button></div><div id="saveHint" class="label" style="text-align:right;margin-top:8px">Pola oznaczone * są wymagane.</div>
+      <div class="actions"><button class="btn primary save-main" type="submit">+ Zapisz oponę</button></div>
     </form>
   </div>
 
@@ -644,93 +655,127 @@ document.querySelectorAll('[data-tire-brand]').forEach(btn=>{
   });
 });
 
-$('#quickSize')?.addEventListener('input',()=>{
-  const parsed=parseQuickTireSpec($('#quickSize').value);
+let selectedSpeedIdx='';
+let selectedHomologations=[];
+
+function parseQuickTireSpec(raw){
+  let s=String(raw||'').trim();
+  if(!s&&!selectedSpeedIdx&&!selectedHomologations.length)return {size:'',autoNote:''};
+
+  // 1. Wyciągnij bieżnik z przecinkiem lub kropką (np. 6,3 lub 6.3)
+  let treadStr='';
+  s=s.replace(/(?:^|\s)(\d{1,2}[,\.]\d)\s*(?:mm)?(?=\s|$)/i, (_,val)=>{
+    const num=parseFloat(val.replace(',','.'));
+    if(!isNaN(num)&&num>0&&num<25){
+      const min=Math.max(0,num-0.5).toFixed(1).replace('.',',');
+      const max=(num+0.5).toFixed(1).replace('.',',');
+      const mid=num.toFixed(1).replace('.',',');
+      treadStr='Bieżnik: '+mid+' mm ('+min+'–'+max+' mm)';
+      return ' ';
+    }
+    return ' '+val+' ';
+  });
+
+  // 2. Sformatuj rozmiar (np. 2753520 -> 275/35 R20)
+  s=s.replace(/^(\d{3})(\d{2})(\d{2})(?=\s|$|[A-Za-z*])/, '$1/$2 R$3');
+  s=s.replace(/^(\d{3})[\/\-](\d{2})[\/\-]?R?(\d{2})/i, '$1/$2 R$3');
+
+  // 3. Wyciągnij 2-cyfrowy lub 4-cyfrowy rok DOT na końcu (np. 20 -> DOT 2020)
+  let dotStr='';
+  s=s.replace(/(?:^|\s)(20\d{2}|\d{2})\s*$/, (_,yr)=>{
+    const fullYear=yr.length===2?'20'+yr:yr;
+    dotStr='DOT '+fullYear;
+    return '';
+  });
+
+  // 4. Połącz nośność (np. 102) z wybranym kafelkiem prędkości (np. Y -> 102Y) i homologacjami (*, RSC, MO, MOE, MO1)
+  s=s.replace(/\s+/g,' ').trim();
+  if(selectedSpeedIdx){
+    if(/\b\d{2,3}$/.test(s)){
+      s=s+selectedSpeedIdx;
+    }else if(s){
+      s=s+' '+selectedSpeedIdx;
+    }else{
+      s=selectedSpeedIdx;
+    }
+  }
+  if(selectedHomologations.length){
+    s=(s?s+' ':'')+selectedHomologations.join(' ');
+  }
+
+  const autoNote=[dotStr,treadStr].filter(Boolean).join(' • ');
+  return {size:s.trim(),autoNote};
+}
+
+function updateTirePreview(){
+  const parsed=parseQuickTireSpec($('#quickSize')?.value||'');
   const prev=$('#quickTirePreview');
   if(!prev)return;
   if(!parsed.size&&!parsed.autoNote){prev.textContent='';return;}
   prev.textContent='Podgląd: '+(parsed.size||'—')+(parsed.autoNote?' | '+parsed.autoNote:'');
+}
+
+document.querySelectorAll('[data-tire-brand]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const brandInp=$('#quickBrand');
+    const sizeInp=$('#quickSize');
+    if(brandInp)brandInp.value=btn.dataset.tireBrand;
+    if(sizeInp){sizeInp.focus();}
+  });
 });
+
+document.querySelectorAll('[data-speed-idx]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tag=btn.dataset.speedIdx;
+    document.querySelectorAll('[data-speed-idx]').forEach(b=>b.classList.remove('primary'));
+    if(selectedSpeedIdx===tag){
+      selectedSpeedIdx='';
+    }else{
+      selectedSpeedIdx=tag;
+      btn.classList.add('primary');
+    }
+    updateTirePreview();
+  });
+});
+
+document.querySelectorAll('[data-homologation]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tag=btn.dataset.homologation;
+    const idx=selectedHomologations.indexOf(tag);
+    if(idx>=0){
+      selectedHomologations.splice(idx,1);
+      btn.classList.remove('primary');
+    }else{
+      selectedHomologations.push(tag);
+      btn.classList.add('primary');
+    }
+    updateTirePreview();
+  });
+});
+
+$('#quickSize')?.addEventListener('input',updateTirePreview);
 
 $('#quickTireForm').addEventListener('submit',async function(e){
   e.preventDefault();
-  const serial=$('#quickSerial').value.trim(),location=$('#quickLocation').value.trim();
-  if(!serial){showAppToast('Wpisz numer seryjny.','error');return;}if(!location){showAppToast('Wpisz lokalizację.','error');return;}
-  if(tires.some(t=>t.serial.toLowerCase()===serial.toLowerCase())){showAppToast('Ten numer seryjny już istnieje.','error');return;}
-
   const parsed=parseQuickTireSpec($('#quickSize').value);
+  const brand=$('#quickBrand').value.trim();
+  if(!brand&&!parsed.size){showAppToast('Wybierz markę lub wpisz rozmiar opony.','error');return;}
+
+  const autoSerial='OP-'+Date.now().toString().slice(-6)+Math.floor(10+Math.random()*89);
   const manualNotes=$('#quickNotes').value.trim();
   const fullNotes=[parsed.autoNote,manualNotes].filter(Boolean).join(' • ');
 
-  const tire=normalizeTire({id:uid(),serial,brand:$('#quickBrand').value.trim(),size:parsed.size,status:$('#quickStatus').value,location,notes:fullNotes,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+  const tire=normalizeTire({id:uid(),serial:autoSerial,brand,size:parsed.size,status:'Na magazynie',location:'Magazyn',notes:fullNotes,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
   try{
     setSyncStatus('Zapisywanie opony…');
     await addRemote(tire);
-    const savedLoc=$('#quickLocation').value;
     this.reset();
-    $('#quickLocation').value=savedLoc;
+    selectedSpeedIdx='';
+    selectedHomologations=[];
+    document.querySelectorAll('[data-speed-idx],[data-homologation]').forEach(b=>b.classList.remove('primary'));
     if($('#quickTirePreview'))$('#quickTirePreview').textContent='';
-    $('#quickSerial').focus();
     await syncFromCloud({allowMigration:false});
     showAppToast('Zapisano');
   }
   catch(e){showAppToast('Nie udało się zapisać opony: '+e.message,'error');setSyncStatus('Nie udało się zapisać zmian.');}
 });
-$('#tireRows').addEventListener('click',async function(e){
-  const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');
-  if(edit){openTire(edit.dataset.edit);return;}
-  if(del){const t=tires.find(x=>x.id===del.dataset.delete);if(!t)return;if(await showAppConfirm('Czy na pewno usunąć oponę '+t.serial+'?',{title:'Usuń oponę',confirmText:'Usuń'})){try{setSyncStatus('Usuwanie opony…');await deleteRemote(t.serial);await syncFromCloud({allowMigration:false});showAppToast('Usunięto');}catch(err){showAppToast('Nie udało się usunąć opony: '+err.message,'error');setSyncStatus('Nie udało się usunąć zmian.');}}}
-});
-
-$$('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
-$('#addBtn')?.addEventListener('click',()=>openTire());$('#closeModal')?.addEventListener('click',closeTire);$('#cancel')?.addEventListener('click',closeTire);
-$('#search').addEventListener('input',render);$('#filterLocation').addEventListener('change',render);$('#filterStatus').addEventListener('change',render);
-$('#rimSearch').addEventListener('input',renderRims);$('#rimFilterLocation').addEventListener('change',renderRims);
-$('#rimRefreshBtn').addEventListener('click',()=>syncRimsFromCloud());
-$('#closeRimModal').addEventListener('click',closeRim);$('#cancelRim').addEventListener('click',closeRim);
-$('#rimModal').addEventListener('click',e=>{if(e.target===$('#rimModal'))closeRim();});
-$('#appConfirmNo').addEventListener('click',()=>finishAppConfirm(false));
-$('#appConfirmYes').addEventListener('click',()=>finishAppConfirm(true));
-$('#appConfirm').addEventListener('click',e=>{if(e.target===$('#appConfirm'))finishAppConfirm(false);});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#appConfirm').classList.contains('open'))finishAppConfirm(false);});
-
-function quickSearch(){
-  const q=$('#quickSearch').value.trim().toLowerCase(),box=$('#quickResult');if(!q){box.innerHTML='';return;}
-  const found=tires.filter(t=>String(t.serial||'').toLowerCase().includes(q));
-  if(!found.length){box.innerHTML='<div style="background:#fff;border-radius:10px;padding:12px 14px;color:#4f5d6b">Nie znaleziono opony o takim numerze.</div>';return;}
-  box.innerHTML=found.map(t=>`<div style="background:#fff;border-radius:10px;padding:14px;color:#17202a;margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap"><div><b>Numer: ${esc(t.serial)}</b><br><span style="color:#176b5b;font-weight:750">Lokalizacja: ${esc(t.location)}</span>${t.brand?`<br><span style="color:#4f5d6b">Marka: ${esc(t.brand)}</span>`:''}${t.size?`<br><span style="color:#4f5d6b">Rozmiar: ${esc(t.size)}</span>`:''}<br><span style="color:#4f5d6b">Status: ${esc(t.status)}</span></div><button type="button" class="btn danger" data-quick-delete="${esc(t.id)}">Usuń oponę</button></div></div>`).join('');
-}
-$('#quickResult').addEventListener('click',async function(e){const btn=e.target.closest('[data-quick-delete]');if(!btn)return;const t=tires.find(x=>x.id===btn.dataset.quickDelete);if(!t)return;if(await showAppConfirm('Czy na pewno usunąć oponę '+t.serial+'?',{title:'Usuń oponę',confirmText:'Usuń'})){try{setSyncStatus('Usuwanie opony…');await deleteRemote(t.serial);await syncFromCloud({allowMigration:false});quickSearch();showAppToast('Usunięto');}catch(err){showAppToast('Nie udało się usunąć opony: '+err.message,'error');}}});
-$('#quickBtn')?.addEventListener('click',quickSearch);$('#quickSearch')?.addEventListener('input',quickSearch);$('#quickSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quickSearch();}});
-
-$('#backupBtn')?.addEventListener('click',downloadBackup);
-$('#refreshBtn')?.addEventListener('click',()=>syncFromCloud({allowMigration:false}));
-$('#restoreBtn')?.addEventListener('click',()=>$('#restoreFile').click());
-$('#restoreFile')?.addEventListener('change',async e=>{
-  const file=e.target.files[0];if(!file)return;e.target.value='';
-  try{
-    const data=JSON.parse(await file.text());
-    if(!data||data.app!=='lokalizator-opon'||!Array.isArray(data.tires))throw new Error('Nieprawidłowy plik kopii.');
-    if(!await showAppConfirm('Przywrócić dane z tej kopii do wspólnej bazy? Obecne dane zostaną zastąpione.',{title:'Przywracanie kopii',confirmText:'Przywróć'}))return;
-    const current=await apiGet();
-    setSyncStatus('Przywracanie kopii…');
-    for(const t of current)await deleteRemote(t.serial);
-    for(const t of data.tires.map(normalizeTire).filter(t=>t.serial))await addRemote(t);
-    if(Array.isArray(data.rims)){
-      const currentRims=await apiGetRims();
-      for(const r of currentRims)await apiPostRim({action:'deleteRim',id:r.id});
-      for(const r of data.rims.map(normalizeRim))await apiPostRim({action:'addRim',rim:r});
-    }
-    await syncFromCloud({allowMigration:false});
-    await syncRimsFromCloud({silent:true});
-    showAppToast('Kopia przywrócona');
-  }catch(err){showAppToast('Nie udało się przywrócić kopii: '+err.message,'error');}
-});
-
-updateBackupInfo();render();renderRims();syncFromCloud();syncRimsFromCloud();
-setInterval(()=>{syncFromCloud({silent:true,allowMigration:false});syncRimsFromCloud({silent:true});},60000);
-</script>
-<datalist id="locationSuggestions"></datalist>
-<datalist id="rimLocationSuggestions"></datalist>
-</body>
-</html>
