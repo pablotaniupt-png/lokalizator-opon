@@ -613,51 +613,6 @@ function openTire(id=''){
 }
 function closeTire(){$('#modal').classList.remove('open');$('#serial').disabled=false;}
 
-function parseQuickTireSpec(raw){
-  let s=String(raw||'').trim();
-  if(!s)return {size:'',autoNote:''};
-
-  // 1. Wyciągnij bieżnik z przecinkiem lub kropką (np. 6,3 lub 6.3)
-  let treadStr='';
-  s=s.replace(/(?:^|\s)(\d{1,2}[,\.]\d)\s*(?:mm)?(?=\s|$)/i, (_,val)=>{
-    const num=parseFloat(val.replace(',','.'));
-    if(!isNaN(num)&&num>0&&num<25){
-      const min=Math.max(0,num-0.5).toFixed(1).replace('.',',');
-      const max=(num+0.5).toFixed(1).replace('.',',');
-      const mid=num.toFixed(1).replace('.',',');
-      treadStr='Bieżnik: '+mid+' mm ('+min+'–'+max+' mm)';
-      return ' ';
-    }
-    return ' '+val+' ';
-  });
-
-  // 2. Sformatuj rozmiar (np. 2753520 -> 275/35 R20)
-  s=s.replace(/^(\d{3})(\d{2})(\d{2})(?=\s|$|[A-Za-z*])/, '$1/$2 R$3');
-  s=s.replace(/^(\d{3})[\/\-](\d{2})[\/\-]?R?(\d{2})/i, '$1/$2 R$3');
-
-  // 3. Wyciągnij 2-cyfrowy lub 4-cyfrowy rok DOT na końcu (np. 20 -> DOT 2020)
-  let dotStr='';
-  s=s.replace(/(?:^|\s)(20\d{2}|\d{2})\s*$/, (_,yr)=>{
-    const fullYear=yr.length===2?'20'+yr:yr;
-    dotStr='DOT '+fullYear;
-    return '';
-  });
-
-  // 4. Powiększ indeks prędkości przy nośności (np. 102y -> 102Y)
-  s=s.replace(/\b(\d{2,3})\s*([hvwyzr]{1,2})\b/gi, (_,n,sp)=>n+sp.toUpperCase());
-  s=s.replace(/\s+/g,' ').trim();
-
-  const autoNote=[dotStr,treadStr].filter(Boolean).join(' • ');
-  return {size:s,autoNote};
-}
-
-document.querySelectorAll('[data-tire-brand]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const inp=$('#quickBrand');
-    if(inp){inp.value=btn.dataset.tireBrand+' ';inp.focus();}
-  });
-});
-
 let selectedSpeedIdx='';
 let selectedHomologations=[];
 
@@ -799,7 +754,8 @@ $('#quickTireForm').addEventListener('submit',async function(e){
     showAppToast('Zapisano (zostawiono rozmiar)');
   }
   catch(e){showAppToast('Nie udało się zapisać opony: '+e.message,'error');setSyncStatus('Nie udało się zapisać zmian.');}
-});});
+});
+
 $('#tireForm').addEventListener('submit',async function(e){
   e.preventDefault();const id=$('#editId').value,t=tires.find(x=>x.id===id),location=$('#location').value.trim();
   if(!t){showAppToast('Nie znaleziono opony.','error');return;}if(!location){showAppToast('Lokalizacja jest wymagana.','error');return;}
@@ -813,7 +769,6 @@ $('#tireRows').addEventListener('click',async function(e){
   if(edit){openTire(edit.dataset.edit);return;}
   if(del){const t=tires.find(x=>x.id===del.dataset.delete);if(!t)return;if(await showAppConfirm('Czy na pewno usunąć oponę '+t.serial+'?',{title:'Usuń oponę',confirmText:'Usuń'})){try{setSyncStatus('Usuwanie opony…');await deleteRemote(t.serial);await syncFromCloud({allowMigration:false});showAppToast('Usunięto');}catch(err){showAppToast('Nie udało się usunąć opony: '+err.message,'error');setSyncStatus('Nie udało się usunąć zmian.');}}}
 });
-
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 $('#addBtn')?.addEventListener('click',()=>openTire());$('#closeModal')?.addEventListener('click',closeTire);$('#cancel')?.addEventListener('click',closeTire);
 $('#search').addEventListener('input',render);$('#filterLocation').addEventListener('change',render);$('#filterStatus').addEventListener('change',render);
